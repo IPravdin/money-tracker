@@ -7,10 +7,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { ResponsiveGrid } from "@/components/layout/responsive-container";
 import { LoadingPage } from "@/components/ui/loading-spinner";
+import { AccountSelector } from "@/components/dashboard/AccountSelector";
+import { useAccounts } from "@/hooks/useAccounts";
+import { useCurrentAccount } from "@/hooks/useCurrentAccount";
+import { getCurrencySymbol } from "@/lib/validations/account";
 import { Plus, TrendingUp, TrendingDown, DollarSign } from "lucide-react";
 
 export default function DashboardPage() {
   const { user, logout, isLoggingOut } = useAuth();
+  const { data: accounts } = useAccounts();
+  const currentAccount = useCurrentAccount(accounts);
 
   if (!user) {
     return <LoadingPage />;
@@ -27,6 +33,11 @@ export default function DashboardPage() {
         }}
       />
 
+      {/* Account Selector */}
+      <div className="mb-6">
+        <AccountSelector />
+      </div>
+
       {/* Overview Cards */}
       <ResponsiveGrid cols={{ default: 1, sm: 2, lg: 4 }} className="mb-6">
         <Card>
@@ -35,7 +46,9 @@ export default function DashboardPage() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$2,350.00</div>
+            <div className="text-2xl font-bold">
+              {currentAccount ? `${getCurrencySymbol(currentAccount.defaultCurrency)}2,350.00` : "$2,350.00"}
+            </div>
             <p className="text-xs text-muted-foreground">
               +2.5% from last month
             </p>
@@ -48,7 +61,9 @@ export default function DashboardPage() {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$3,200.00</div>
+            <div className="text-2xl font-bold">
+              {currentAccount ? `${getCurrencySymbol(currentAccount.defaultCurrency)}3,200.00` : "$3,200.00"}
+            </div>
             <p className="text-xs text-muted-foreground">
               +12% from last month
             </p>
@@ -61,7 +76,9 @@ export default function DashboardPage() {
             <TrendingDown className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$1,850.00</div>
+            <div className="text-2xl font-bold">
+              {currentAccount ? `${getCurrencySymbol(currentAccount.defaultCurrency)}1,850.00` : "$1,850.00"}
+            </div>
             <p className="text-xs text-muted-foreground">
               -5% from last month
             </p>
