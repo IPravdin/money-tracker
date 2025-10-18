@@ -17,7 +17,7 @@ export async function getSession() {
 export async function requireAuth() {
   const session = await getSession();
   
-  if (!session.isLoggedIn) {
+  if (!session.isLoggedIn || !session.userId) {
     redirect("/login");
   }
   
@@ -27,4 +27,18 @@ export async function requireAuth() {
 export async function logout() {
   const session = await getSession();
   session.destroy();
+}
+
+export async function getCurrentUser() {
+  const session = await getSession();
+  
+  if (!session.isLoggedIn || !session.userId) {
+    return null;
+  }
+  
+  return {
+    id: session.userId,
+    email: session.email,
+    name: session.name,
+  };
 }

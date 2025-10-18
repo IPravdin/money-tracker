@@ -1,4 +1,4 @@
-import { AccountType, TransactionType, SharePermission } from "@prisma/client";
+import { AccountType, TransactionType, SharePermission } from "./enums";
 
 export type { AccountType, TransactionType, SharePermission };
 

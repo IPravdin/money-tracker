@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -28,7 +28,7 @@ model User {
 model Account {
   id              String      @id @default(cuid())
   name            String
-  type            AccountType
+  type            String
   defaultCurrency String      @default("USD")
   shareToken      String?     @unique // For view-only sharing
   createdAt       DateTime    @default(now())
@@ -43,23 +43,14 @@ model Account {
   @@map("accounts")
 }
 
-enum AccountType {
-  PERSONAL
-  FAMILY
-  SAVINGS
-  BUSINESS
-  INVESTMENT
-  EMERGENCY_FUND
-}
-
 model Transaction {
   id          String          @id @default(cuid())
-  amount      Decimal         @db.Decimal(10, 2)
+  amount      Decimal
   currency    String          @default("USD")
   category    String
   description String?
   date        DateTime
-  type        TransactionType
+  type        String
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
   
@@ -76,15 +67,10 @@ model Transaction {
   @@map("transactions")
 }
 
-enum TransactionType {
-  INCOME
-  EXPENSE
-}
-
 model Budget {
   id           String  @id @default(cuid())
   category     String
-  monthlyLimit Decimal @db.Decimal(10, 2)
+  monthlyLimit Decimal
   currency     String  @default("USD")
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
@@ -98,7 +84,7 @@ model Budget {
 
 model AccountShare {
   id         String          @id @default(cuid())
-  permission SharePermission
+  permission String
   createdAt  DateTime        @default(now())
   updatedAt  DateTime        @updatedAt
   
@@ -112,17 +98,12 @@ model AccountShare {
   @@map("account_shares")
 }
 
-enum SharePermission {
-  READ_ONLY
-  FULL_ACCESS
-}
-
 model Transfer {
   id             String    @id @default(cuid())
-  amount         Decimal   @db.Decimal(10, 2)
+  amount         Decimal
   sourceCurrency String
   targetCurrency String
-  exchangeRate   Decimal?  @db.Decimal(10, 6) // Only for cross-currency transfers
+  exchangeRate   Decimal? // Only for cross-currency transfers
   description    String?
   date           DateTime
   createdAt      DateTime  @default(now())
