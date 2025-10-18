@@ -8,7 +8,7 @@
   - Create basic project structure and folder organization
   - _Requirements: 11.1, 11.2_
 
-- [ ] 2. Implement database models and schema
+- [x] 2. Implement database models and schema
 
   - Create Prisma schema with User, Account, Transaction, Budget, Transfer, and AccountShare models
   - Define enums for AccountType, TransactionType, and SharePermission
