@@ -1,0 +1,139 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  accounts            Account[]
+  accountShares       AccountShare[]
+  createdTransactions Transaction[] @relation("TransactionCreator")
+  
+  @@map("users")
+}
+
+model Account {
+  id              String      @id @default(cuid())
+  name            String
+  type            AccountType
+  defaultCurrency String      @default("USD")
+  shareToken      String?     @unique // For view-only sharing
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  
+  userId       String
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+  budgets      Budget[]
+  shares       AccountShare[]
+  
+  @@map("accounts")
+}
+
+enum AccountType {
+  PERSONAL
+  FAMILY
+  SAVINGS
+  BUSINESS
+  INVESTMENT
+  EMERGENCY_FUND
+}
+
+model Transaction {
+  id          String          @id @default(cuid())
+  amount      Decimal         @db.Decimal(10, 2)
+  currency    String          @default("USD")
+  category    String
+  description String?
+  date        DateTime
+  type        TransactionType
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  
+  accountId String
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  
+  createdById String?
+  createdBy   User?   @relation("TransactionCreator", fields: [createdById], references: [id])
+  
+  // Transfer-related fields
+  transferId String?
+  transfer   Transfer? @relation(fields: [transferId], references: [id])
+  
+  @@map("transactions")
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+model Budget {
+  id           String  @id @default(cuid())
+  category     String
+  monthlyLimit Decimal @db.Decimal(10, 2)
+  currency     String  @default("USD")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  accountId String
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  
+  @@unique([accountId, category])
+  @@map("budgets")
+}
+
+model AccountShare {
+  id         String          @id @default(cuid())
+  permission SharePermission
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+  
+  accountId String
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([accountId, userId])
+  @@map("account_shares")
+}
+
+enum SharePermission {
+  READ_ONLY
+  FULL_ACCESS
+}
+
+model Transfer {
+  id             String    @id @default(cuid())
+  amount         Decimal   @db.Decimal(10, 2)
+  sourceCurrency String
+  targetCurrency String
+  exchangeRate   Decimal?  @db.Decimal(10, 6) // Only for cross-currency transfers
+  description    String?
+  date           DateTime
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  
+  sourceAccountId String
+  targetAccountId String
+  
+  userId String
+  
+  transactions Transaction[]
+  
+  @@map("transfers")
+}
