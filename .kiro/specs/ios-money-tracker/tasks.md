@@ -25,7 +25,7 @@
   - Create middleware for protecting authenticated routes
   - _Requirements: 11.1, 11.2_
 
-- [ ] 4. Create core UI components and layout
+- [x] 4. Create core UI components and layout
 
   - Set up shadcn/ui components and theme configuration
   - Build main layout with header, sidebar, and navigation
