@@ -43,16 +43,16 @@ To apply migrations to your database:
 
 ```bash
 # Generate Prisma client
-npm run db:generate
+pnpm db:generate
 
 # Apply migrations (requires running PostgreSQL)
-npm run db:migrate
+pnpm db:migrate
 
 # Push schema changes without migrations (development)
-npm run db:push
+pnpm db:push
 
 # Open Prisma Studio
-npm run db:studio
+pnpm db:studio
 ```
 
 ## Database Requirements

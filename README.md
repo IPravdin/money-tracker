@@ -27,33 +27,38 @@ A personal finance management web application built with Next.js 15, TypeScript,
 
 ### Prerequisites
 
-- Node.js 18+ 
+- Node.js 18+
 - PostgreSQL database
-- npm or yarn
+- pnpm (recommended) or npm
 
 ### Installation
 
 1. Clone the repository
 2. Install dependencies:
+
    ```bash
-   npm install
+   pnpm install
    ```
 
 3. Set up environment variables:
+
    ```bash
    cp .env.example .env
    ```
+
    Update the `.env` file with your database URL and secrets.
 
 4. Set up the database:
+
    ```bash
-   npx prisma db push
-   npx prisma generate
+   pnpm db:push
+   pnpm db:generate
    ```
 
 5. Run the development server:
+
    ```bash
-   npm run dev
+   pnpm dev
    ```
 
 6. Open [http://localhost:3000](http://localhost:3000) in your browser.
@@ -61,6 +66,7 @@ A personal finance management web application built with Next.js 15, TypeScript,
 ## Database Schema
 
 The application uses the following main models:
+
 - **User**: User accounts and authentication
 - **Account**: Financial accounts (Personal, Family, Savings, etc.)
 - **Transaction**: Income and expense records
@@ -72,17 +78,17 @@ The application uses the following main models:
 
 ### Database Commands
 
-- `npm run db:generate` - Generate Prisma client
-- `npm run db:push` - Push schema changes to database
-- `npm run db:migrate` - Create and run migrations
-- `npm run db:studio` - Open Prisma Studio
+- `pnpm db:generate` - Generate Prisma client
+- `pnpm db:push` - Push schema changes to database
+- `pnpm db:migrate` - Create and run migrations
+- `pnpm db:studio` - Open Prisma Studio
 
 ### Scripts
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
+- `pnpm dev` - Start development server
+- `pnpm build` - Build for production
+- `pnpm start` - Start production server
+- `pnpm lint` - Run ESLint
 
 ## License
 
