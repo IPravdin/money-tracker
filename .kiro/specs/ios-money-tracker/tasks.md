@@ -100,7 +100,7 @@
   - Implement budget exceeded alerts with visual indicators
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
 
-- [ ] 12. Implement account transfer functionality
+- [-] 12. Implement account transfer functionality
 
   - Create Transfer model and API endpoints
   - Build transfer form with source/destination account selection

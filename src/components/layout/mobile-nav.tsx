@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation"
 import { 
   Home, 
   CreditCard, 
+  ArrowUpDown,
   PieChart, 
   Target, 
   Settings
@@ -21,6 +22,11 @@ const mobileNavigation = [
     name: "Transactions",
     href: "/transactions",
     icon: CreditCard,
+  },
+  {
+    name: "Transfers",
+    href: "/transfers",
+    icon: ArrowUpDown,
   },
   {
     name: "Insights",
