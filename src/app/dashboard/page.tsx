@@ -6,17 +6,24 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ResponsiveGrid } from "@/components/layout/responsive-container";
-import { LoadingPage } from "@/components/ui/loading-spinner";
+import { LoadingPage, LoadingSpinner } from "@/components/ui/loading-spinner";
 import { AccountSelector } from "@/components/dashboard/AccountSelector";
+import { MonthlyOverview } from "@/components/dashboard/MonthlyOverview";
+import { QuickActions } from "@/components/dashboard/QuickActions";
+import { RecentTransactions } from "@/components/dashboard/RecentTransactions";
 import { useAccounts } from "@/hooks/useAccounts";
 import { useCurrentAccount } from "@/hooks/useCurrentAccount";
-import { getCurrencySymbol } from "@/lib/validations/account";
-import { Plus, TrendingUp, TrendingDown, DollarSign } from "lucide-react";
+import { useTransactions } from "@/hooks/useTransactions";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Wallet } from "lucide-react";
 
 export default function DashboardPage() {
   const { user, logout, isLoggingOut } = useAuth();
-  const { data: accounts } = useAccounts();
+  const { data: accounts, isLoading: accountsLoading } = useAccounts();
   const currentAccount = useCurrentAccount(accounts);
+  const { data: transactions, isLoading: transactionsLoading } = useTransactions(
+    currentAccount?.id
+  );
 
   if (!user) {
     return <LoadingPage />;
@@ -27,10 +34,6 @@ export default function DashboardPage() {
       <PageHeader
         title="Dashboard"
         description={`Welcome back, ${user.name || user.email}!`}
-        action={{
-          label: "Add Transaction",
-          onClick: () => console.log("Add transaction"),
-        }}
       />
 
       {/* Account Selector */}
@@ -38,190 +41,105 @@ export default function DashboardPage() {
         <AccountSelector />
       </div>
 
-      {/* Overview Cards */}
-      <ResponsiveGrid cols={{ default: 1, sm: 2, lg: 4 }} className="mb-6">
+      {/* Show loading state while fetching data */}
+      {(accountsLoading || transactionsLoading) && (
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Balance</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {currentAccount ? `${getCurrencySymbol(currentAccount.defaultCurrency)}2,350.00` : "$2,350.00"}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              +2.5% from last month
-            </p>
+          <CardContent className="flex items-center justify-center py-12">
+            <LoadingSpinner className="mr-2" />
+            Loading dashboard data...
           </CardContent>
         </Card>
+      )}
 
+      {/* Show empty state if no account is selected */}
+      {!accountsLoading && !currentAccount && (
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Monthly Income</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {currentAccount ? `${getCurrencySymbol(currentAccount.defaultCurrency)}3,200.00` : "$3,200.00"}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              +12% from last month
-            </p>
+          <CardContent className="py-12">
+            <EmptyState
+              icon={<Wallet className="h-8 w-8" />}
+              title="No account selected"
+              description="Please create or select an account to view your dashboard"
+            />
           </CardContent>
         </Card>
+      )}
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Monthly Expenses</CardTitle>
-            <TrendingDown className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {currentAccount ? `${getCurrencySymbol(currentAccount.defaultCurrency)}1,850.00` : "$1,850.00"}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              -5% from last month
-            </p>
-          </CardContent>
-        </Card>
+      {/* Show dashboard content when account is selected and data is loaded */}
+      {!accountsLoading && !transactionsLoading && currentAccount && (
+        <>
+          {/* Monthly Overview Cards */}
+          <MonthlyOverview
+            transactions={transactions || []}
+            defaultCurrency={currentAccount.defaultCurrency}
+            className="mb-6"
+          />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Savings Rate</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">42%</div>
-            <p className="text-xs text-muted-foreground">
-              +8% from last month
-            </p>
-          </CardContent>
-        </Card>
-      </ResponsiveGrid>
+          {/* Quick Actions */}
+          <QuickActions currentAccountId={currentAccount.id} className="mb-6" />
 
-      {/* Quick Actions */}
-      <div className="mb-6">
-        <h2 className="text-lg font-semibold mb-4">Quick Actions</h2>
-        <div className="flex flex-wrap gap-2">
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            Add Income
-          </Button>
-          <Button variant="outline">
-            <Plus className="mr-2 h-4 w-4" />
-            Add Expense
-          </Button>
-          <Button variant="outline">
-            <Plus className="mr-2 h-4 w-4" />
-            Transfer Money
-          </Button>
-        </div>
-      </div>
+          {/* Recent Activity */}
+          <ResponsiveGrid cols={{ default: 1, lg: 2 }}>
+            <RecentTransactions transactions={transactions || []} limit={5} />
 
-      {/* Recent Activity */}
-      <ResponsiveGrid cols={{ default: 1, lg: 2 }}>
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Transactions</CardTitle>
-            <CardDescription>Your latest financial activity</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">Grocery Shopping</p>
-                  <p className="text-sm text-muted-foreground">Food & Dining</p>
-                </div>
-                <div className="text-right">
-                  <p className="font-medium text-red-600">-$85.50</p>
-                  <p className="text-sm text-muted-foreground">Today</p>
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">Salary</p>
-                  <p className="text-sm text-muted-foreground">Income</p>
-                </div>
-                <div className="text-right">
-                  <p className="font-medium text-green-600">+$3,200.00</p>
-                  <p className="text-sm text-muted-foreground">2 days ago</p>
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">Gas Station</p>
-                  <p className="text-sm text-muted-foreground">Transportation</p>
-                </div>
-                <div className="text-right">
-                  <p className="font-medium text-red-600">-$45.00</p>
-                  <p className="text-sm text-muted-foreground">3 days ago</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Budget Overview</CardTitle>
+                <CardDescription>Your spending vs budget this month</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <EmptyState
+                  title="Budget tracking coming soon"
+                  description="Budget management features will be available in the next update"
+                />
+              </CardContent>
+            </Card>
+          </ResponsiveGrid>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Budget Overview</CardTitle>
-            <CardDescription>Your spending vs budget this month</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium">Food & Dining</span>
-                  <span className="text-sm text-muted-foreground">$285 / $400</span>
-                </div>
-                <div className="w-full bg-secondary rounded-full h-2">
-                  <div className="bg-primary h-2 rounded-full" style={{ width: '71%' }}></div>
-                </div>
+          {/* Debug info */}
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle>Debug Information</CardTitle>
+              <CardDescription>User session details</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2 text-sm">
+                <p>
+                  <strong>User ID:</strong> {user.id}
+                </p>
+                <p>
+                  <strong>Email:</strong> {user.email}
+                </p>
+                {user.name && (
+                  <p>
+                    <strong>Name:</strong> {user.name}
+                  </p>
+                )}
+                {currentAccount && (
+                  <>
+                    <p>
+                      <strong>Current Account:</strong> {currentAccount.name}
+                    </p>
+                    <p>
+                      <strong>Account Currency:</strong> {currentAccount.defaultCurrency}
+                    </p>
+                    <p>
+                      <strong>Transactions:</strong> {transactions?.length || 0}
+                    </p>
+                  </>
+                )}
               </div>
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium">Transportation</span>
-                  <span className="text-sm text-muted-foreground">$180 / $200</span>
-                </div>
-                <div className="w-full bg-secondary rounded-full h-2">
-                  <div className="bg-yellow-500 h-2 rounded-full" style={{ width: '90%' }}></div>
-                </div>
-              </div>
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium">Entertainment</span>
-                  <span className="text-sm text-muted-foreground">$45 / $150</span>
-                </div>
-                <div className="w-full bg-secondary rounded-full h-2">
-                  <div className="bg-primary h-2 rounded-full" style={{ width: '30%' }}></div>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </ResponsiveGrid>
-
-      {/* Debug info */}
-      <Card className="mt-6">
-        <CardHeader>
-          <CardTitle>Debug Information</CardTitle>
-          <CardDescription>User session details</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2 text-sm">
-            <p><strong>User ID:</strong> {user.id}</p>
-            <p><strong>Email:</strong> {user.email}</p>
-            {user.name && <p><strong>Name:</strong> {user.name}</p>}
-          </div>
-          <Button 
-            onClick={() => logout()} 
-            disabled={isLoggingOut}
-            variant="destructive"
-            className="mt-4"
-          >
-            {isLoggingOut ? "Signing out..." : "Sign out"}
-          </Button>
-        </CardContent>
-      </Card>
+              <Button
+                onClick={() => logout()}
+                disabled={isLoggingOut}
+                variant="destructive"
+                className="mt-4"
+              >
+                {isLoggingOut ? "Signing out..." : "Sign out"}
+              </Button>
+            </CardContent>
+          </Card>
+        </>
+      )}
     </AuthenticatedLayout>
   );
 }

@@ -71,7 +71,7 @@
   - Handle currency changes for existing vs new transactions
   - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 7.6_
 
-- [ ] 9. Create dashboard and overview functionality
+- [x] 9. Create dashboard and overview functionality
 
   - Build main dashboard with monthly income and expense totals
   - Implement account selector integration on dashboard
