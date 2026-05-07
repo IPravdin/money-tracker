@@ -15,13 +15,18 @@ import { useAccounts } from "@/hooks/useAccounts";
 import { useCurrentAccount } from "@/hooks/useCurrentAccount";
 import { useTransactions } from "@/hooks/useTransactions";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Wallet } from "lucide-react";
+import { useBudgetProgress } from "@/hooks/useBudgetProgress";
+import { BudgetAlerts } from "@/components/budgets";
+import { Wallet, TrendingUp } from "lucide-react";
 
 export default function DashboardPage() {
   const { user, logout, isLoggingOut } = useAuth();
   const { data: accounts, isLoading: accountsLoading } = useAccounts();
   const currentAccount = useCurrentAccount(accounts);
   const { data: transactions, isLoading: transactionsLoading } = useTransactions(
+    currentAccount?.id
+  );
+  const { data: budgetProgress, isLoading: budgetsLoading } = useBudgetProgress(
     currentAccount?.id
   );
 
@@ -67,6 +72,11 @@ export default function DashboardPage() {
       {/* Show dashboard content when account is selected and data is loaded */}
       {!accountsLoading && !transactionsLoading && currentAccount && (
         <>
+          {/* Budget Alerts */}
+          <div className="mb-6">
+            <BudgetAlerts accountId={currentAccount.id} />
+          </div>
+
           {/* Monthly Overview Cards */}
           <MonthlyOverview
             transactions={transactions || []}
@@ -87,10 +97,53 @@ export default function DashboardPage() {
                 <CardDescription>Your spending vs budget this month</CardDescription>
               </CardHeader>
               <CardContent>
-                <EmptyState
-                  title="Budget tracking coming soon"
-                  description="Budget management features will be available in the next update"
-                />
+                {budgetsLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <LoadingSpinner className="h-6 w-6" />
+                  </div>
+                ) : !budgetProgress || budgetProgress.length === 0 ? (
+                  <EmptyState
+                    icon={<TrendingUp className="h-6 w-6" />}
+                    title="No budgets set"
+                    description="Create budgets to track your spending"
+                    action={{
+                      label: "Create Budget",
+                      onClick: () => window.location.href = "/budgets",
+                    }}
+                  />
+                ) : (
+                  <div className="space-y-4">
+                    {budgetProgress.slice(0, 3).map((progress) => (
+                      <div key={progress.budget.id} className="space-y-2">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="font-medium">{progress.budget.category}</span>
+                          <span className={progress.isExceeded ? "text-destructive font-semibold" : ""}>
+                            {progress.percentage.toFixed(0)}%
+                          </span>
+                        </div>
+                        <div className="relative h-2 w-full overflow-hidden rounded-full bg-secondary">
+                          <div 
+                            className={`h-full transition-all ${
+                              progress.isExceeded ? "bg-destructive" : 
+                              progress.isWarning ? "bg-yellow-500" : 
+                              "bg-primary"
+                            }`}
+                            style={{ width: `${Math.min(progress.percentage, 100)}%` }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                    {budgetProgress.length > 3 && (
+                      <Button 
+                        variant="outline" 
+                        className="w-full mt-2"
+                        onClick={() => window.location.href = "/budgets"}
+                      >
+                        View All Budgets
+                      </Button>
+                    )}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </ResponsiveGrid>

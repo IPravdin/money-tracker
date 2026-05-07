@@ -90,7 +90,7 @@
   - Create responsive chart components
   - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
 
-- [ ] 11. Build budget management system
+- [x] 11. Build budget management system
 
   - Create Budget model CRUD operations and API endpoints
   - Build budget creation form with category and monthly limit
