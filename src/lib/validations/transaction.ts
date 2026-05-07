@@ -118,18 +118,13 @@ export const validateAndNormalizeCategory = (
 };
 
 // Helper function to format transaction amount with currency
+// Uses the centralized currency service for consistent formatting
 export const formatTransactionAmount = (
   amount: number,
   currency: string,
   type: TransactionType
 ): string => {
-  const formatter = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: currency,
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-
-  const formattedAmount = formatter.format(Math.abs(amount));
-  return type === TransactionType.EXPENSE ? `-${formattedAmount}` : `+${formattedAmount}`;
+  const { formatCurrency } = require("@/lib/currency");
+  const sign = type === TransactionType.EXPENSE ? -1 : 1;
+  return formatCurrency(amount * sign, currency, { showSign: true });
 };

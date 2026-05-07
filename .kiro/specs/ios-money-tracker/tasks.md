@@ -61,7 +61,7 @@
   - Create category management interface
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
 
-- [ ] 8. Build multi-currency support system
+- [x] 8. Build multi-currency support system
 
   - Implement currency service with USD, EUR, and UAH support
   - Create currency picker component with proper symbols

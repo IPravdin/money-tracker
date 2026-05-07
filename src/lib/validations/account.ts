@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { AccountType } from "@/types/enums";
 
-// Supported currencies
+// Supported currencies - centralized definition
 export const SUPPORTED_CURRENCIES = ["USD", "EUR", "UAH"] as const;
 
 export const createAccountSchema = z.object({
@@ -37,15 +37,9 @@ export const updateAccountSchema = z.object({
 export type CreateAccountInput = z.infer<typeof createAccountSchema>;
 export type UpdateAccountInput = z.infer<typeof updateAccountSchema>;
 
-// Helper function to get currency symbol
-export const getCurrencySymbol = (currency: string): string => {
-  const symbols: Record<string, string> = {
-    USD: "$",
-    EUR: "€",
-    UAH: "₴",
-  };
-  return symbols[currency] || currency;
-};
+// Re-export currency utilities from centralized currency service
+// This maintains backward compatibility while using the new service
+export { getCurrencySymbol, getCurrencyName } from "@/lib/currency";
 
 // Helper function to get account type display name
 export const getAccountTypeDisplayName = (type: AccountType): string => {
