@@ -80,7 +80,7 @@
   - Build responsive dashboard layout
   - _Requirements: 1.1, 4.1, 6.3_
 
-- [ ] 10. Implement visual insights and charts
+- [x] 10. Implement visual insights and charts
 
   - Integrate Recharts library for data visualization
   - Create pie chart for expenses by category
