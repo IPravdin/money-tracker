@@ -42,7 +42,7 @@
   - Add account switching logic with data isolation
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 7.1_
 
-- [ ] 6. Build transaction management system
+- [x] 6. Build transaction management system
 
   - Create Transaction model CRUD operations and API endpoints
   - Build add transaction form with amount, category, description, and date fields
@@ -52,7 +52,7 @@
   - Implement transaction deletion with confirmation prompts
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 3.1, 3.2, 3.3, 3.4, 3.5_
 
-- [ ] 7. Implement category system and management
+- [-] 7. Implement category system and management
 
   - Create predefined categories (Food, Transportation, Entertainment, Bills, Shopping, Health, etc.)
   - Build category picker component with icons and colors
