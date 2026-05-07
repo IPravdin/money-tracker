@@ -40,13 +40,6 @@ export function CategoryManagement({
   );
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
-  const customExpenseCategories = customCategories.filter(
-    (cat) => cat.type === TransactionType.EXPENSE
-  );
-  const customIncomeCategories = customCategories.filter(
-    (cat) => cat.type === TransactionType.INCOME
-  );
-
   const handleCreateCategory = (category: CategoryDefinition) => {
     onAddCategory(category);
     setShowCreateDialog(false);
@@ -161,7 +154,7 @@ export function CategoryManagement({
               <Alert>
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  No custom categories yet. Click "Add Custom" to create one.
+                  No custom categories yet. Click &quot;Add Custom&quot; to create one.
                 </AlertDescription>
               </Alert>
             )}
@@ -217,7 +210,7 @@ export function CategoryManagement({
             <DialogDescription>
               Are you sure you want to delete this custom category? This action
               cannot be undone. Existing transactions with this category will be
-              set to "Uncategorized".
+              set to &quot;Uncategorized&quot;.
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end gap-2 pt-4">

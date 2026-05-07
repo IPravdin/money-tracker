@@ -52,7 +52,7 @@
   - Implement transaction deletion with confirmation prompts
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 3.1, 3.2, 3.3, 3.4, 3.5_
 
-- [-] 7. Implement category system and management
+- [x] 7. Implement category system and management
 
   - Create predefined categories (Food, Transportation, Entertainment, Bills, Shopping, Health, etc.)
   - Build category picker component with icons and colors
