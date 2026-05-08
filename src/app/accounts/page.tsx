@@ -13,7 +13,8 @@ import { useAccounts } from "@/hooks/useAccounts";
 import { useCurrentAccount, useAccountSwitcher } from "@/hooks/useCurrentAccount";
 import { getAccountTypeDisplayName, getCurrencySymbol } from "@/lib/validations/account";
 import { Account } from "@/types";
-import { Wallet, Settings, Eye } from "lucide-react";
+import { Wallet, Settings, Eye, Share2 } from "lucide-react";
+import { ShareDialog } from "@/components/sharing/ShareDialog";
 
 export default function AccountsPage() {
   const [showAddForm, setShowAddForm] = useState(false);
@@ -167,6 +168,11 @@ export default function AccountsPage() {
                         <Settings className="mr-2 h-4 w-4" />
                         Settings
                       </Button>
+                      <ShareDialog
+                        accountId={account.id}
+                        accountName={account.name}
+                        shareToken={account.shareToken}
+                      />
                     </div>
                   </div>
                 </CardContent>

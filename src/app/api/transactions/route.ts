@@ -16,13 +16,18 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const accountId = searchParams.get("accountId");
 
-    // Build where clause
+    // Build where clause - include owned and shared accounts
     const whereClause: {
-      account: { userId: string };
+      account: {
+        OR: Array<{ userId: string } | { shares: { some: { userId: string } } }>;
+      };
       accountId?: string;
     } = {
       account: {
-        userId: session.userId,
+        OR: [
+          { userId: session.userId },
+          { shares: { some: { userId: session.userId } } },
+        ],
       },
     };
 
@@ -75,11 +80,21 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = createTransactionSchema.parse(body);
 
-    // Verify that the account belongs to the user
+    // Verify that the account belongs to the user or is shared with them
     const account = await prisma.account.findFirst({
       where: {
         id: validatedData.accountId,
-        userId: session.userId,
+        OR: [
+          { userId: session.userId },
+          { shares: { some: { userId: session.userId } } },
+        ],
+      },
+      include: {
+        shares: {
+          where: {
+            userId: session.userId,
+          },
+        },
       },
     });
 
@@ -87,6 +102,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: "Account not found or access denied" },
         { status: 404 }
+      );
+    }
+
+    // Check if user has write permission
+    const isOwner = account.userId === session.userId;
+    const userShare = account.shares[0];
+    
+    if (!isOwner && userShare?.permission === "READ_ONLY") {
+      return NextResponse.json(
+        { error: "You only have read-only access to this account" },
+        { status: 403 }
       );
     }
 

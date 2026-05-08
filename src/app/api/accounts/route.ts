@@ -3,7 +3,7 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createAccountSchema } from "@/lib/validations/account";
 
-// GET /api/accounts - Get all accounts for the authenticated user
+// GET /api/accounts - Get all accounts for the authenticated user (owned + shared)
 export async function GET() {
   try {
     const session = await getSession();
@@ -12,16 +12,74 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const accounts = await prisma.account.findMany({
+    // Get owned accounts
+    const ownedAccounts = await prisma.account.findMany({
       where: {
         userId: session.userId,
+      },
+      include: {
+        shares: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
+          },
+        },
+        _count: {
+          select: {
+            shares: true,
+          },
+        },
       },
       orderBy: {
         createdAt: "desc",
       },
     });
 
-    return NextResponse.json({ accounts });
+    // Get shared accounts (where user is a collaborator)
+    const sharedAccounts = await prisma.account.findMany({
+      where: {
+        shares: {
+          some: {
+            userId: session.userId,
+          },
+        },
+      },
+      include: {
+        user: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
+        shares: {
+          where: {
+            userId: session.userId,
+          },
+          select: {
+            permission: true,
+          },
+        },
+        _count: {
+          select: {
+            shares: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    return NextResponse.json({ 
+      ownedAccounts,
+      sharedAccounts,
+      accounts: [...ownedAccounts, ...sharedAccounts] // Combined list for backward compatibility
+    });
   } catch (error) {
     console.error("Error fetching accounts:", error);
     return NextResponse.json(

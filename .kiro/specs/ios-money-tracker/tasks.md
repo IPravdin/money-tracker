@@ -100,7 +100,7 @@
   - Implement budget exceeded alerts with visual indicators
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
 
-- [-] 12. Implement account transfer functionality
+- [x] 12. Implement account transfer functionality
 
   - Create Transfer model and API endpoints
   - Build transfer form with source/destination account selection
@@ -110,7 +110,7 @@
   - Build transfer history view with linked transaction display
   - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5, 10.6, 10.7_
 
-- [ ] 13. Build sharing and collaboration system
+- [x] 13. Build sharing and collaboration system
 
   - Create AccountShare model and sharing API endpoints
   - Implement view-only link generation with secure tokens

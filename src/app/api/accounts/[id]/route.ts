@@ -16,16 +16,39 @@ export async function GET(
     }
 
     const { id } = await params;
+    
+    // Check if user owns the account or has shared access
     const account = await prisma.account.findFirst({
       where: {
         id,
-        userId: session.userId,
+        OR: [
+          { userId: session.userId },
+          { shares: { some: { userId: session.userId } } },
+        ],
       },
       include: {
+        user: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
+        shares: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
+          },
+        },
         _count: {
           select: {
             transactions: true,
             budgets: true,
+            shares: true,
           },
         },
       },
@@ -35,7 +58,16 @@ export async function GET(
       return NextResponse.json({ error: "Account not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ account });
+    // Determine user's permission level
+    const isOwner = account.userId === session.userId;
+    const userShare = account.shares.find(share => share.userId === session.userId);
+    const permission = isOwner ? "OWNER" : userShare?.permission || null;
+
+    return NextResponse.json({ 
+      account,
+      permission,
+      isOwner,
+    });
   } catch (error) {
     console.error("Error fetching account:", error);
     return NextResponse.json(
